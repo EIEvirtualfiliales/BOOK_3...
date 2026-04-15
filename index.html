@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Escuela de Idiomas del Ejército</title>
+    <style>
+        /* --- PROTECCIÓN Y BLOQUEOS --- */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            outline: none;
+        }
+
+        @media print { body { display: none !important; } }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f0f2f5; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .container {
+            background: white;
+            padding: 20px 40px 40px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            width: 95%;
+            max-width: 1100px; 
+            text-align: center;
+            position: relative;
+            display: flex; 
+            flex-direction: column;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .nav-panel {
+            width: 180px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            max-height: 500px;
+            display: none; 
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+        }
+
+        .nav-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.65em;
+            font-weight: bold;
+            color: #6c757d;
+            cursor: pointer;
+        }
+
+        .nav-item.active { border: 2px solid #007bff; color: #007bff; background: #e7f1ff; }
+        .nav-item.answered { background: #28a745; color: white; border-color: #28a745; }
+
+        .content-area { flex: 1; }
+        .pregunta-box { display: none; width: 100%; }
+        
+        .header-pregunta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 0 10px;
+        }
+
+        .texto-pregunta { 
+            font-size: 1.6em; 
+            font-weight: bold;
+            color: #1c1e21;
+            flex: 1;
+            text-align: center;
+        }
+
+        .tiempo-global {
+            background: #343a40;
+            color: #ffc107;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: 2px solid #ffc107;
+        }
+
+        .bloque-contenido {
+            width: 100%;
+            max-width: 850px; 
+            margin: 0 auto;
+        }
+        
+        .imagen-pregunta {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: contain;
+            margin-bottom: 35px;
+            border-radius: 12px;
+            display: block;
+            border: 1px solid #f0f0f0;
+            pointer-events: none;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .layout-etapa2 {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .img-lateral {
+            flex: 1;
+            max-width: 350px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+        .columna-opciones {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+        
+        .contenedor-opciones-circular {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        
+        .contenedor-opciones-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 40px auto;
+        }
+
+        .division-opcion {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .opcion-btn-circular {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            border: 2px solid #ced4da;
+            background-color: #fff;
+            cursor: pointer;
+            font-size: 1.4em;
+            color: #495057;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .opcion-btn-vertical {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 2px solid #ced4da;
+            background-color: #fff;
+            cursor: pointer;
+            font-size: 1.1em;
+            text-align: left;
+            transition: 0.2s;
+            font-weight: 500;
+            color: #1c1e21;
+        }
+
+        .opcion-btn-circular.seleccionada, .opcion-btn-vertical.seleccionada {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+
+        .timer-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 20px;
+            margin: 10px auto;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #dc3545;
+        }
+
+        .contador-texto {
+            font-size: 0.95em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .btn-primario { padding: 16px 35px; cursor: pointer; border-radius: 12px; border: none; background: #007bff; color: white; font-weight: bold; font-size: 1.1em; transition: 0.3s; }
+        
+        .btn-pausa { display: none !important; }
+
+        .btn-siguiente {
+            margin-top: 20px;
+            padding: 12px 45px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-siguiente:hover { background-color: #218838; }
+
+        #btnGuardarEnviar {
+            display: none;
+            background-color: #000;
+            margin-top: 20px;
+        }
+
+        #aviso-conexion, #pantalla-carga-final {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.98);
+            z-index: 9999;
+            border-radius: 20px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .spinner-red {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #dc3545;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .logo-spinner {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #modal-confirmacion {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .input-carnet {
+            padding: 12px;
+            font-size: 1.2em;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            width: 250px;
+            text-align: center;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        /* Estilos Resultado Final */
+        .card-resultado {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            border-top: 6px solid #28a745;
+            text-align: center;
+        }
+        .detalle-estudiante {
+            text-align: left;
+            display: inline-block;
+            margin: 20px 0;
+            font-size: 1.1em;
+            line-height: 2;
+        }
+        .nota-final {
+            font-size: 2em;
+            color: #007bff;
+            margin-top: 15px;
+            font-weight: bold;
+            display: block;
+        }
+		
+		/* PISTA: Busca el final de los estilos y pega esto */
+
+			.card-resultado {
+				padding: 15px 25px; /* Reducimos el espacio interno vertical */
+				border: 2px solid #1a73e8;
+				background: white;
+				border-radius: 15px;
+				text-align: center;
+				max-width: 550px; /* Hacemos la tarjeta más estrecha */
+				margin: 0 auto;   /* La centramos */
+			}
+
+			.detalle-final {
+				text-align: left;
+				background: #f8f9fa;
+				padding: 12px 20px; /* Reducimos relleno */
+				border-radius: 10px;
+				line-height: 1.4;   /* Reducimos el espacio entre líneas de texto */
+				font-size: 0.95em;  /* Texto un poco más pequeño para ahorrar espacio */
+			}
+
+			.nota-destacada {
+				font-size: 28px;    /* Reducimos el tamaño de la fuente de la nota */
+				font-weight: bold;
+				color: #28a745;
+				background: #f1f8e9;
+				padding: 10px;      /* Reducimos relleno */
+				margin: 10px 0;     /* Menos separación arriba y abajo */
+				border-radius: 8px;
+				display: block;
+			}
+		
+    </style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+	
+</head>
+<body oncontextmenu="return false" onkeydown="return manejarBloqueoTeclado(event)" ondragstart="return false">
+
+<div id="modal-confirmacion">
+    <div class="modal-content">
+        <h3>¿Confirmar Envío?</h3>
+        <p>Una vez enviado, no podrá corregir sus respuestas.</p>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+            <button onclick="cerrarModal()" class="btn-siguiente" style="background:#6c757d; padding:10px 20px;">Cancelar</button>
+            <button onclick="procesarEnvioFinal()" class="btn-primario" style="padding:10px 20px;">Sí, enviar todo</button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div id="pantalla-carga-final">
+        <div class="loader-container">
+            <div class="spinner-red"></div>
+            <img src="LOGO_EIE.png" class="logo-spinner" id="img-loader">
+        </div>
+        <h3 id="mensaje-carga-final">Procesando...</h3>
+    </div>
+
+    <div id="aviso-conexion">
+        <div class="loader-container">
+            <div class="spinner-red"></div>
+            <img src="LOGO_EIE.png" class="logo-spinner" alt="Cargando...">
+        </div>
+        <strong style="color: #dc3545; font-size: 1.3em;">SIN CONEXIÓN</strong>
+        <p id="texto-estado" style="color: #666;">Reintentando conectar cada segundo...</p>
+    </div>
+
+    <div id="pantalla-inicio">
+        <h2>EIE TEST BOOK 3</h2>
+        <div style="margin-bottom: 20px;">
+            <p>Ingrese su Número de Carnet para comenzar:</p>
+            <input type="text" id="input-carnet" class="input-carnet" placeholder="C.I. del Estudiante" onfocus="enFocoInput=true" onblur="enFocoInput=false">
+        </div>
+        <p style="margin-bottom: 35px; color: #4b4b4b;"><h2>INSTRUCCIONES PARA EL EXAMEN</h2><br>Si dará el examen en un dispositivo móvil deberá activar la opción SITIO PARA COMPUTADORA y subir el volumen al maximo<br>Una vez presionado el botón de COMENZAR AHORA se iniciará el examen, empezará con la 1ra. Parte del Examen (Listening)<br>Preguntas del 1 al 25, escuchará audios y deberá elegir una opción de respuesta (A, B, C, D)<br>Teniendo un límite de tiempo de 20 segundos por pregunta<br>La 2da. Parte del Examen (Reading) del 26 al 50 no tiene límite de tiempo <br>La duración máxima del examen total es de 45 minutos<br>En el caso de que se pierda la señal el sistema esperará hasta que se vuelva a conectar a la Red de Internet y podrá continuar en la pregunta que se quedó.<br>Nota.- Al responder las 50 preguntas, tendrá la opción de verificar sus respuestas con el navegador en la parte izquierda presionando en el número de pregunta que quiera modificar su respuesta y para finalizar no se olvide de presionar GUARDAR Y ENVIAR</p>
+        <button id="btnIniciar" class="btn-primario">Comenzar Ahora</button>
+    </div>
+
+    <div class="main-layout">
+        <div id="nav-panel" class="nav-panel">
+            <h4 style="margin-top:0; font-size: 0.8em; color:#666; letter-spacing: 1px;">NAVEGACIÓN</h4>
+            <div id="nav-grid" class="nav-grid"></div>
+        </div>
+
+        <div id="pantalla-pregunta" class="pregunta-box">
+            <div class="header-pregunta">
+                <span class="texto-pregunta" id="texto-pregunta">Cargando...</span>
+                <div class="tiempo-global" id="reloj-global">45:00</div>
+            </div>
+            
+            <div id="zona-dinamica" class="bloque-contenido">
+                <div id="espacio-imagen"></div>
+                <div id="contenedor-opciones"></div>
+            </div>
+
+            <div id="wrapper-timer">
+                <div class="timer-container">
+                    <div id="barra-progreso" class="timer-bar"></div>
+                </div>
+                <p class="contador-texto">Tiempo pregunta: <span id="contador-numero">20</span>s</p>
+            </div>
+            
+            <button id="btnSiguiente" class="btn-siguiente">Siguiente Pregunta</button>
+            <button id="btnGuardarEnviar" class="btn-primario">Guardar y Enviar Todo</button>
+        </div>
+    </div>
+
+    <div id="pantalla-final" style="display:none;"></div>
+</div>
+
+<audio id="reproductor"></audio>
+
+<script>
+    // --- CONFIGURACIÓN GOOGLE ---
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6HIR_88Bug0xsTpaqqXnnwe-aMTihGenTkHXdPfaf3rGZ6KMqNZfCF9ofEB_u7fR00w/exec"; 
+    let datosEstudiante = null;
+
+    // --- NUEVAS VARIABLES DE AVANCE ---
+    let preguntasVistas = new Set();
+    let preguntasRespondidas = 0;
+
+    // --- LÓGICA DE CARNET Y DESBLOQUEO ---
+    let enFocoInput = false;
+    let numCarnet = "";
+
+    function manejarBloqueoTeclado(e) {
+        if (enFocoInput) return true;
+        if (e.keyCode == 123 || (e.ctrlKey && (e.keyCode == 85 || (e.shiftKey && e.keyCode == 73)))) {
+            return false;
+        }
+        return false;  
+    }
+
+    const _k = [0,2,0,2,1,  1,2,3,0,2,  0,1,3,2,3,  1,2,0,3,1,  1,2,3,0,1,  3,2,3,2,1,  0,1,3,1,2,  3,0,0,2,1,  2,3,0,2,0,  1,1,0,3,0]; 
+
+		const examenData = [
+			// 1-17: Imagen y Audio (Visual)
+			{ audio: "1_A.mp3", pregunta: "Pregunta 1", imagen: "1_A.png", tipo: "visual" },
+			{ audio: "2_A.mp3", pregunta: "Pregunta 2", imagen: "2_A.png", tipo: "visual" },
+			{ audio: "3_A.mp3", pregunta: "Pregunta 3", imagen: "3_A.png", tipo: "visual" },
+			{ audio: "4_A.mp3", pregunta: "Pregunta 4", imagen: "4_A.png", tipo: "visual" },
+			{ audio: "5_A.mp3", pregunta: "Pregunta 5", imagen: "5_A.png", tipo: "visual" },
+			{ audio: "6_A.mp3", pregunta: "Pregunta 6", imagen: "6_A.png", tipo: "visual" },
+			{ audio: "7_A.mp3", pregunta: "Pregunta 7", imagen: "7_A.png", tipo: "visual" },
+			{ audio: "8_A.mp3", pregunta: "Pregunta 8", imagen: "8_A.png", tipo: "visual" },
+			{ audio: "9_A.mp3", pregunta: "Pregunta 9", imagen: "9_A.png", tipo: "visual" },
+			{ audio: "10_A.mp3", pregunta: "Pregunta 10", imagen: "10_A.png", tipo: "visual" },
+			{ audio: "11_A.mp3", pregunta: "Pregunta 11", imagen: "11_A.png", tipo: "visual" },
+			{ audio: "12_A.mp3", pregunta: "Pregunta 12", imagen: "12_A.png", tipo: "visual" },
+			{ audio: "13_A.mp3", pregunta: "Pregunta 13", imagen: "13_A.png", tipo: "visual" },
+			{ audio: "14_A.mp3", pregunta: "Pregunta 14", imagen: "14_A.png", tipo: "visual" },
+			{ audio: "15_A.mp3", pregunta: "Pregunta 15", imagen: "15_A.png", tipo: "visual" },
+			{ audio: "16_A.mp3", pregunta: "Pregunta 16", imagen: "16_A.png", tipo: "visual" },
+			{ audio: "17_A.mp3", pregunta: "Pregunta 17", imagen: "17_A.png", tipo: "visual" },
+
+			// 18-25: Audio con opciones de respuesta
+			{ audio: "18_A.mp3", pregunta: "18.", tipo: "texto", opciones: ["after", "to a good", "before", "to a bad"] },
+			{ audio: "19_A.mp3", pregunta: "19.", tipo: "texto", opciones: ["morning", "noon", "midnight", "evening"] },
+			{ audio: "20_A.mp3", pregunta: "20.", tipo: "texto", opciones: ["closing", "studying", "opening", "checking"] },
+			{ audio: "21_A.mp3", pregunta: "21.", tipo: "texto", opciones: ["putting", "buying", "closing", "opening"] },
+			{ audio: "22_A.mp3", pregunta: "22.", tipo: "texto", opciones: ["Yes, we do.", "I’m in the Air Force.", "I speak English.", "OK. Let’s go."] },
+			{ audio: "23_A.mp3", pregunta: "23.", tipo: "texto", opciones: ["I’m from Canada.", "OK. See you after class.", "I’m a doctor.", "It leaves at 7:00."] },
+			{ audio: "24_A.mp3", pregunta: "24.", tipo: "texto", opciones: ["I’m in the Air Force.", "I speak Japanese.", "Yes, we do.", "OK. Let’s go."] },
+			{ audio: "25_A.mp3", pregunta: "25.", tipo: "texto", opciones: ["I speak French.", "Here it is!", "OK. See you in the snack bar.", "It leaves at 10:00."] },
+
+			// 26-50: Reading (Texto y Respuesta)
+			{ audio: null, pregunta: "26. The students ____ the new words.", tipo: "texto", opciones: ["repeats", "repeating", "are repeat", "repeat"] },
+			{ audio: null, pregunta: "27. The students eat lunch ____ 12:00.", tipo: "texto", opciones: ["in", "on", "at", "to"] },
+			{ audio: null, pregunta: "28. Bob ____ to school on Sunday.", tipo: "texto", opciones: ["no goes", "go doesn’t", "does go not", "doesn’t go"] },
+			{ audio: null, pregunta: "29. We eat dinner ____ in the day.", tipo: "texto", opciones: ["never", "month", "late", "next"] },
+			{ audio: null, pregunta: "30. Ted: ____ to the tape? Peg: No, they don’t.", tipo: "texto", opciones: ["They do listen", "Do they listen", "Listen do they", "They listen do"] },
+			{ audio: null, pregunta: "31. They want ____ a radio.", tipo: "texto", opciones: ["to buy", "is buying", "buy", "buys"] },
+			{ audio: null, pregunta: "32. Linda eats a salad ____ lunch.", tipo: "texto", opciones: ["in", "for", "on", "to"] },
+			{ audio: null, pregunta: "33. Today is Tuesday. ____ was Monday.", tipo: "texto", opciones: ["Next", "Memorize", "Hour", "Yesterday"] },
+			{ audio: null, pregunta: "34. Ted: When ____ to class? Peg: At 8:00.", tipo: "texto", opciones: ["they come", "do they come", "come they", "they do come"] },
+			{ audio: null, pregunta: "35. Ted’s homework is okay. It is ____.", tipo: "texto", opciones: ["enlisted", "never", "all right", "before"] },
+			{ audio: null, pregunta: "36. They are talking in different ____.", tipo: "texto", opciones: ["seconds", "dictionaries", "officers", "languages"] },
+			{ audio: null, pregunta: "37. Ted: Where ____ go? Peg: To the snack bar.", tipo: "texto", opciones: ["do you want to", "you want", "want you", "you want do to"] },
+			{ audio: null, pregunta: "38. Ted: ____ do they watch TV? Peg: 4 days a week.", tipo: "texto", opciones: ["How often", "How many", "Every", "What"] },
+			{ audio: null, pregunta: "39. Larry studies 7 days a week. He ____ studies.", tipo: "texto", opciones: ["never", "sometimes", "always", "every"] },
+			{ audio: null, pregunta: "40. They ____ in the barracks yesterday.", tipo: "texto", opciones: ["is", "were", "was", "are"] },
+			{ audio: null, pregunta: "41. Gill ____ a pen and pencil.", tipo: "texto", opciones: ["does", "says", "has", "was"] },
+			{ audio: null, pregunta: "42. ____ in the hospital yesterday?", tipo: "texto", opciones: ["He was", "Were he", "He is", "Was he"] },
+			{ audio: null, pregunta: "43. Lunch is one ____.", tipo: "texto", opciones: ["hour", "minute", "year", "second"] },
+			{ audio: null, pregunta: "44. The ____.", tipo: "texto", opciones: ["small book is", "small is book", "book is small", "book small is"] },
+			{ audio: null, pregunta: "45. Scott isn’t eating the fruit. It is ____.", tipo: "texto", opciones: ["bad", "tall", "short", "after"] },
+			{ audio: null, pregunta: "46. How many ____?", tipo: "texto", opciones: ["do they have chairs", "chairs do they have", "they do have chairs", "chairs have they do"] },
+			{ audio: null, pregunta: "47. Ted: When are you going to the commissary? Peg: I’m going ____.", tipo: "texto", opciones: ["here", "right now", "all right", "there"] },
+			{ audio: null, pregunta: "48. The teachers ____ in school yesterday.", tipo: "texto", opciones: ["weren’t", "wasn’t", "aren’t", "isn’t"] },
+			{ audio: null, pregunta: "49. Beth doesn’t want ____ a question.", tipo: "texto", opciones: ["ask", "is asking", "asks", "to ask"] },
+			{ audio: null, pregunta: "50. ____ at the dispensary?", tipo: "texto", opciones: ["When were we", "We were when", "When we were", "Were we when"] }
+		];
+
+    let indice = 0, respuestas = [], intervalo, temporizador, enPausa = false;
+    let imgOk = false, audioOk = false, modoRevision = false;
+    let chequeoRedIntervalo = null;
+    
+    const TIEMPO_PREGUNTA_1_25 = 20000;
+    let tiempoGlobalSegundos = 45 * 60;
+    let intervaloGlobal;
+
+    const reproductor = document.getElementById('reproductor');
+    const avisoRed = document.getElementById('aviso-conexion');
+
+    function actualizarPanelNavegacion() {
+        const grid = document.getElementById('nav-grid');
+        grid.innerHTML = '';
+        examenData.forEach((_, i) => {
+            const item = document.createElement('div');
+            item.className = 'nav-item';
+            if (i === indice) item.classList.add('active');
+            if (respuestas[i] !== undefined && respuestas[i] !== null) item.classList.add('answered');
+            item.innerText = i + 1;
+            item.onclick = () => { if(modoRevision || i >= 25) { indice = i; mostrarPregunta(); } };
+            grid.appendChild(item);
+        });
+    }
+
+    function iniciarRelojGlobal() {
+        intervaloGlobal = setInterval(() => {
+            if (!enPausa) {
+                tiempoGlobalSegundos--;
+                let m = Math.floor(tiempoGlobalSegundos / 60);
+                let s = tiempoGlobalSegundos % 60;
+                document.getElementById('reloj-global').innerText = 
+                    `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if (tiempoGlobalSegundos <= 0) {
+                    clearInterval(intervaloGlobal);
+                    procesarEnvioFinal();
+                }
+            }
+        }, 1000);
+    }
+
+    // --- NUEVA FUNCIÓN DE ACTUALIZACIÓN EN TIEMPO REAL ---
+
+			function seleccionarOpcion(idx) {
+					if (enPausa) return;
+					respuestas[indice] = idx;
+					marcarOpcionSeleccionada(idx);
+					
+					// ESTA LÍNEA ES LA QUE PINTA LA HOJA EN TIEMPO REAL
+					actualizarAvanceNube(); 
+				}
+				async function actualizarAvanceNube() {
+						if (!datosEstudiante) return;
+						
+						// 1. Actualizar Vistas y Contador
+						preguntasVistas.add(indice);
+						const totalResp = respuestas.filter(r => r !== undefined && r !== null).length;
+						const avanceTexto = `Vistas: ${preguntasVistas.size}, Resp: ${totalResp}`;
+
+						// 2. Calcular Nota Parcial (Columna F)
+						let aciertos = 0;
+						respuestas.forEach((res, i) => {
+							if (res === _k[i]) aciertos++;
+						});
+						const notaActual = `${aciertos * 2} / 100`;
+
+						// 3. Preparar Letra y Verificación de Acierto
+						let letraParaHoja = "No respondido";
+						let esCorrecta = false;
+						
+						if (respuestas[indice] !== undefined && respuestas[indice] !== null) {
+							letraParaHoja = respuestas[indice]; // Envía la letra (A, B, C, D)
+							esCorrecta = (respuestas[indice] === _k[indice]);
+						}
+
+						try {
+							fetch(SCRIPT_URL, {
+								method: 'POST',
+								mode: 'no-cors',
+								body: JSON.stringify({ 
+									action: 'avance', 
+									fila: datosEstudiante.fila, 
+									avance: avanceTexto,
+									notaParcial: notaActual,
+									preguntaIndice: indice, // Esto garantiza que vaya a la columna correcta
+									letra: letraParaHoja,
+									esCorrecto: esCorrecta
+								})
+							});
+						} catch (e) {
+							console.error("Error al sincronizar con la hoja");
+						}
+					}
+
+    function pausarPorRed() {
+        if (enPausa) return;
+        enPausa = true;
+        avisoRed.style.display = 'flex';
+        reproductor.pause();
+        clearInterval(intervalo);
+        clearTimeout(temporizador);
+        if (!chequeoRedIntervalo) {
+            chequeoRedIntervalo = setInterval(() => { if (navigator.onLine) cargarRecursosPreguntaActual(); }, 1000);
+        }
+    }
+
+    function cargarRecursosPreguntaActual() {
+        const data = examenData[indice];
+        imgOk = data.tipo === "texto" || !data.imagen; 
+        audioOk = data.audio === null || modoRevision;
+
+        if (data.imagen) {
+            const img = new Image();
+            img.src = data.imagen + "?t=" + Date.now();
+            img.onload = () => { imgOk = true; verificarSiPodemosSeguir(); };
+        }
+        if (data.audio && !modoRevision) {
+            reproductor.src = data.audio + "?t=" + Date.now();
+            reproductor.oncanplaythrough = () => { audioOk = true; verificarSiPodemosSeguir(); };
+            reproductor.load();
+        } else {
+            verificarSiPodemosSeguir();
+        }
+    }
+
+    function verificarSiPodemosSeguir() {
+        if (imgOk && audioOk && navigator.onLine) {
+            clearInterval(chequeoRedIntervalo);
+            chequeoRedIntervalo = null;
+            enPausa = false;
+            avisoRed.style.display = 'none';
+            if (examenData[indice].audio && !modoRevision) reproductor.play().catch(() => {});
+            
+            if (!modoRevision && indice < 25) {
+                document.getElementById('wrapper-timer').style.visibility = 'visible';
+                empezarTimer(TIEMPO_PREGUNTA_1_25);
+            } else {
+                document.getElementById('wrapper-timer').style.visibility = 'hidden';
+            }
+        }
+    }
+
+    window.addEventListener('offline', pausarPorRed);
+
+    document.getElementById('btnIniciar').onclick = async () => {
+        const inputCarnet = document.getElementById('input-carnet');
+        const valor = inputCarnet.value.trim();
+        if (valor === "") {
+            alert("Por favor, ingrese su número de carnet.");
+            return;
+        }
+
+        const pantallaCarga = document.getElementById('pantalla-carga-final');
+        const msjCarga = document.getElementById('mensaje-carga-final');
+        
+        pantallaCarga.style.display = 'flex';
+        msjCarga.innerText = "Validando registro y horario...";
+
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'validar', carnet: valor })
+            });
+            const res = await response.json();
+
+            if (res.success) {
+                if (res.yaRealizo) {
+                    pantallaCarga.style.display = 'none';
+                    alert(`Hola ${res.nombre}, ya realizaste este examen.\nTu nota registrada fue: ${res.nota}`);
+                } else {
+                    datosEstudiante = res;
+                    numCarnet = valor;
+                    pantallaCarga.style.display = 'none';
+                    document.getElementById('pantalla-inicio').style.display = 'none';
+                    document.getElementById('nav-panel').style.display = 'block'; 
+                    document.getElementById('pantalla-pregunta').style.display = 'block';
+                    iniciarRelojGlobal();
+                    mostrarPregunta();
+                }
+            } else {
+                pantallaCarga.style.display = 'none';
+                alert(res.mensaje || "Usted no se encuentra habilitado o registrado para este examen.");
+            }
+        } catch (e) {
+            pantallaCarga.style.display = 'none';
+            alert("Error de conexión. Intente de nuevo.");
+        }
+    };
+
+    function mostrarPregunta() {
+        if (indice >= examenData.length) {
+            activarModoRevision();
+            return;
+        }
+        
+        actualizarAvanceNube(); // <--- ACTUALIZA AVANCE CADA VEZ QUE CAMBIA DE PREGUNTA
+        
+        actualizarPanelNavegacion(); 
+        const data = examenData[indice];
+        const zona = document.getElementById('zona-dinamica');
+        zona.innerHTML = '<div id="espacio-imagen"></div><div id="contenedor-opciones"></div>';
+        
+        const espacioImg = document.getElementById('espacio-imagen');
+        const contenedorOpts = document.getElementById('contenedor-opciones');
+
+        if (data.tipo === "visual") {
+            document.getElementById('texto-pregunta').innerText = data.pregunta;
+            contenedorOpts.className = "contenedor-opciones-circular";
+            const img = document.createElement('img');
+            img.className = 'imagen-pregunta';
+            img.src = data.imagen;
+            espacioImg.appendChild(img);
+
+            ['A', 'B', 'C', 'D'].forEach((letra, i) => {
+                const div = document.createElement('div');
+                div.className = 'division-opcion';
+                const btn = document.createElement('button');
+                btn.className = 'opcion-btn-circular' + (respuestas[indice] === i ? ' seleccionada' : '');
+                btn.innerText = letra;
+                btn.onclick = () => {
+                    document.querySelectorAll('.opcion-btn-circular').forEach(b => b.classList.remove('seleccionada'));
+                    btn.classList.add('seleccionada');
+                    respuestas[indice] = i;
+                    actualizarPanelNavegacion();
+                    actualizarAvanceNube(); // Actualiza también al responder
+                };
+                div.appendChild(btn);
+                contenedorOpts.appendChild(div);
+            });
+        } 
+        else if (data.tipo === "texto") {
+            document.getElementById('texto-pregunta').innerText = data.pregunta;
+            contenedorOpts.className = "contenedor-opciones-vertical";
+            data.opciones.forEach((texto, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'opcion-btn-vertical' + (respuestas[indice] === i ? ' seleccionada' : '');
+                btn.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong>  ${texto}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.opcion-btn-vertical').forEach(b => b.classList.remove('seleccionada'));
+                    btn.classList.add('seleccionada');
+                    respuestas[indice] = i;
+                    actualizarPanelNavegacion();
+                    actualizarAvanceNube(); // Actualiza también al responder
+                };
+                contenedorOpts.appendChild(btn);
+            });
+        }
+        else if (data.tipo === "etapa2") {
+            document.getElementById('texto-pregunta').innerText = "Segunda Etapa del Examen";
+            zona.innerHTML = `
+                <div class="layout-etapa2">
+                    <img src="${data.imagen}" class="img-lateral">
+                    <div class="columna-opciones">
+                        <p style="font-size:1.3em; font-weight:bold; margin-bottom:15px; text-align: center;">${data.pregunta}</p>
+                        <div id="sub-opts"></div>
+                    </div>
+                </div>`;
+            const subOpts = document.getElementById('sub-opts');
+            data.opciones.forEach((texto, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'opcion-btn-vertical' + (respuestas[indice] === i ? ' seleccionada' : '');
+                btn.style.marginBottom = "8px";
+                btn.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong> ${texto}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.opcion-btn-vertical').forEach(b => b.classList.remove('seleccionada'));
+                    btn.classList.add('seleccionada');
+                    respuestas[indice] = i;
+                    actualizarPanelNavegacion();
+                    actualizarAvanceNube(); // Actualiza también al responder
+                };
+                subOpts.appendChild(btn);
+            });
+        }
+        cargarRecursosPreguntaActual();
+    }
+
+    function activarModoRevision() {
+        modoRevision = true;
+        clearInterval(intervalo);
+        clearTimeout(temporizador);
+        document.getElementById('wrapper-timer').style.display = 'none';
+        document.getElementById('btnSiguiente').style.display = 'none';
+        document.getElementById('btnGuardarEnviar').style.display = 'inline-block';
+        indice = 0; 
+        mostrarPregunta();
+    }
+
+    function empezarTimer(ms) {
+        clearInterval(intervalo);
+        clearTimeout(temporizador);
+        let queda = ms;
+        const barra = document.getElementById('barra-progreso');
+        barra.style.transition = 'none';
+        barra.style.width = '100%';
+        setTimeout(() => {
+            if (enPausa) return;
+            barra.style.transition = `width ${ms}ms linear`;
+            barra.style.width = '0%';
+        }, 50);
+        intervalo = setInterval(() => {
+            if (!enPausa) {
+                queda -= 1000;
+                if (queda >= 0) document.getElementById('contador-numero').innerText = Math.ceil(queda / 1000);
+            }
+        }, 1000);
+		// Dentro de empezarTimer, en la parte del setTimeout final:
+			temporizador = setTimeout(() => {
+				if (!enPausa) { 
+					actualizarAvanceNube(); // <--- Añade esto aquí para que marque "No respondido" si se acaba el tiempo
+					indice++; 
+					mostrarPregunta(); 
+				}
+			}, ms);
+    }
+
+    document.getElementById('btnGuardarEnviar').onclick = () => {
+        document.getElementById('modal-confirmacion').style.display = 'flex';
+    };
+
+    function cerrarModal() {
+        document.getElementById('modal-confirmacion').style.display = 'none';
+    }
+
+async function procesarEnvioFinal() {
+        cerrarModal();
+        clearInterval(intervaloGlobal);
+        const pantallaCarga = document.getElementById('pantalla-carga-final');
+        const msjCarga = document.getElementById('mensaje-carga-final');
+        pantallaCarga.style.display = 'flex';
+        msjCarga.innerText = "Guardando respuestas...";
+
+        const aciertos = respuestas.filter((r, i) => r === _k[i]).length;
+        const notaSobre100 = aciertos * 2; 
+        const notaFinal = `${notaSobre100} / 100`;
+
+        // --- NUEVO: Generar lista de aciertos/errores para la columna R ---
+        let detallesResultados = [];
+        for (let i = 0; i < examenData.length; i++) {
+            detallesResultados.push(respuestas[i] === _k[i] ? "Correcto" : "Incorrecto");
+        }
+
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    action: 'guardar', 
+                    fila: datosEstudiante.fila, 
+                    nota: notaFinal,
+                    detalles: detallesResultados // Enviamos el array de 50 respuestas
+                })
+            });
+            const res = await response.json();
+            if (res.success) {
+                msjCarga.innerText = "¡Datos guardados con éxito!";
+                setTimeout(() => {
+                    pantallaCarga.style.display = 'none';
+                    finalizar(res.fecha, notaFinal);
+                }, 1500);
+            }
+        } catch (e) {
+            alert("Error al guardar en la nube. Imprima su pantalla como respaldo.");
+            finalizar("Error en servidor", notaFinal);
+        }
+    }
+
+    function finalizar(fecha, nota) {
+        document.getElementById('nav-panel').style.display = 'none';
+        document.getElementById('pantalla-pregunta').style.display = 'none';
+        const finalDiv = document.getElementById('pantalla-final');
+        
+        const hoy = new Date();
+        const meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+        const fechaTexto = `${hoy.getDate()} DE ${meses[hoy.getMonth()]} DEL ${hoy.getFullYear()}`;
+
+        finalDiv.innerHTML = `
+            <div class="card-resultado" id="certificado-area">
+                <img src="LOGO_EIE.png" style="width: 50px; margin-bottom: 5px;">
+                <h3 style="color: #1a73e8; margin: 0 0 10px 0;">RESULTADO DE EVALUACIÓN</h3>
+                <div class="detalle-final">
+                    <p><strong>ESTUDIANTE:</strong> ${datosEstudiante.nombre}</p>
+                    <p><strong>C.I.:</strong> ${numCarnet}</p>
+                    <p><strong>FECHA:</strong> ${fechaTexto}</p>
+                </div>
+                <div class="nota-destacada">NOTA OBTENIDA: ${nota}</div>
+                <div class="no-exportar">
+                    <button onclick="descargarPDF()" class="btn-primario" style="background:#34a853; margin-bottom:10px;">📥 DESCARGAR PDF</button>
+                    <button onclick="window.location.href='https://eievirtual2026.github.io/LOGIN/'" class="btn-primario">🏠 INICIO</button>
+                </div>
+            </div>
+        `;
+        finalDiv.style.display = 'block';
+    }
+
+    document.getElementById('btnSiguiente').onclick = function() {
+        if (!enPausa) {
+            clearInterval(intervalo);
+            clearTimeout(temporizador);
+            indice++;
+            mostrarPregunta();
+        }
+    };
+
+    function descargarPDF() {
+        const elemento = document.getElementById('certificado-area');
+        const botones = document.querySelector('.no-exportar');
+        if(botones) botones.style.display = 'none';
+
+        const opciones = {
+            margin: 10,
+            filename: `Resultado_${numCarnet}.pdf`,
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opciones).from(elemento).save().then(() => {
+            if(botones) botones.style.display = 'block';
+        });
+    }
+</script>
+</body>
+</html>
